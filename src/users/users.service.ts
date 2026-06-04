@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -17,5 +17,48 @@ export class UsersService {
         passwordHash,
       },
     });
+  }
+  async getProfile(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+
+      select: {
+        id: true,
+        username: true,
+        bio: true,
+        avatarUrl: true,
+        createdAt: true,
+
+        posts: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            _count: {
+              select: {
+                likes: true,
+                comments: true,
+              },
+            },
+          },
+        },
+
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
   }
 }
