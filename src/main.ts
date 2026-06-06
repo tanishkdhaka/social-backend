@@ -18,7 +18,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      forbiddenNonWhitelisted: true, // Typo fix: NestJS uses 'forbiddenNonWhitelisted' in newer versions, check your local types if it complains
+      forbidNonWhitelisted: true,
     }),
   );
 
